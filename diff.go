@@ -3,6 +3,7 @@ package pretty
 import (
 	"fmt"
 	"io"
+	"math"
 	"reflect"
 )
 
@@ -91,11 +92,20 @@ func (w diffWriter) diff(av, bv reflect.Value) {
 		lenB := bv.Len()
 		if lenA != lenB {
 			w.printf("%s[%d] != %s[%d]", av.Type(), lenA, bv.Type(), lenB)
-			break
 		}
-		for i := 0; i < lenA; i++ {
+		for i := 0; i < int(math.Min(float64(lenA), float64(lenB))); i++ {
 			w.relabel(fmt.Sprintf("[%d]", i)).diff(av.Index(i), bv.Index(i))
 		}
+		if lenA > lenB {
+			for i := lenB; i < lenA; i++ {
+				w.relabel(fmt.Sprintf("[%d]", i)).printf("%v != (missing)", av.Index(i))
+			}
+		} else if lenA < lenB {
+			for i := lenA; i < lenB; i++ {
+				w.relabel(fmt.Sprintf("[%d]", i)).printf("(missing) != %v", bv.Index(i))
+			}
+		}
+
 	case reflect.Map:
 		ak, both, bk := keyDiff(av.MapKeys(), bv.MapKeys())
 		for _, k := range ak {
