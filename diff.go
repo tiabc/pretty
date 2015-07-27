@@ -100,7 +100,7 @@ func (w diffWriter) diff(av, bv reflect.Value) {
 		ak, both, bk := keyDiff(av.MapKeys(), bv.MapKeys())
 		for _, k := range ak {
 			w := w.relabel(fmt.Sprintf("[%#v]", k.Interface()))
-			w.printf("%q != (missing)", av.MapIndex(k))
+			w.printf("%v{%#+v} != (missing)", av.MapIndex(k).Kind(), av.MapIndex(k).Interface())
 		}
 		for _, k := range both {
 			w := w.relabel(fmt.Sprintf("[%#v]", k.Interface()))
@@ -108,7 +108,8 @@ func (w diffWriter) diff(av, bv reflect.Value) {
 		}
 		for _, k := range bk {
 			w := w.relabel(fmt.Sprintf("[%#v]", k.Interface()))
-			w.printf("(missing) != %q", bv.MapIndex(k))
+			w.printf("(missing) != %v{%#+v}", bv.MapIndex(k).Kind(), bv.MapIndex(k).Interface())
+
 		}
 	case reflect.Interface:
 		w.diff(reflect.ValueOf(av.Interface()), reflect.ValueOf(bv.Interface()))
