@@ -1,8 +1,10 @@
 package pretty
 
-    import "github.com/kr/pretty"
-
+    import "github.com/tiabc/pretty"
+    
     Package pretty provides pretty-printing for Go values.
+    
+    Caution! Unexported fields are ignored.
 
 Documentation
 
