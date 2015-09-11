@@ -17,6 +17,11 @@ type S struct {
 	C []int
 }
 
+type U struct {
+	A int
+	b int
+}
+
 var diffs = []difftest{
 	{a: nil, b: nil},
 	{a: S{A: 1}, b: S{A: 1}},
@@ -34,6 +39,10 @@ var diffs = []difftest{
 	{S{C: []int{}}, S{C: []int{1}}, []string{`C: []int[0] != []int[1]`, `C[0]: (missing) != 1`}},
 	{S{C: []int{1, 2, 3}}, S{C: []int{1, 2, 4}}, []string{`C[2]: 3 != 4`}},
 	{S{}, S{A: 1, S: new(S)}, []string{`A: 0 != 1`, `S: nil != &{0 <nil> <nil> []}`}},
+
+	// Unexported fields are not considered in diff.
+	// TODO: Ideally, if there's no exported fields in a struct, the whole struct must be compared. Or no?
+	{U{A: 1, b: 2}, U{A: 1, b: 3}, []string{}},
 }
 
 func TestDiff(t *testing.T) {
